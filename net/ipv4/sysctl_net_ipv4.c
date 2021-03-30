@@ -40,14 +40,14 @@ static int tcp_min_snd_mss_max __read_only = 65535;
 static int ip_ttl_min __read_only = 1;
 static int ip_ttl_max __read_only = 255;
 static int tcp_syn_retries_min __read_only = 1;
-static int tcp_syn_retries_max __read_only = MAX_TCP_SYNCNT
+static int tcp_syn_retries_max __read_only = MAX_TCP_SYNCNT;
 static int ip_ping_group_range_min[] __read_only = { 0, 0 };
-static int ip_ping_group_range_max[] __read_only = { GID_T_MAX, GID_T_MA
+static int ip_ping_group_range_max[] __read_only = { GID_T_MAX, GID_T_MAX };
 static int tcp_delack_seg_min __read_only = TCP_DELACK_MIN;
 static int tcp_delack_seg_max __read_only = 60;
 static int tcp_use_userconfig_min __read_only;
 static int tcp_use_userconfig_max __read_only = 1;
-static int one_day_secs __read_only = 24 *
+static int one_day_secs __read_only = 24 * 3600;
 
 /* Update system visible IP port range */
 static void set_local_port_range(struct net *net, int range[2])
