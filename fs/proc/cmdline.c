@@ -25,7 +25,6 @@ static const struct file_operations cmdline_proc_fops = {
 	.release	= single_release,
 };
 
-#ifdef REMOVE_SAFETYNET_FLAGS
 static void remove_flag(char *cmd, const char *flag)
 {
 	char *start_addr, *end_addr;
@@ -44,9 +43,6 @@ static void remove_safetynet_flags(char *cmd)
 {
 	remove_flag(cmd, "androidboot.veritymode=");
 }
-#endif
-
-#if 1
 
 static char *padding = "                ";
 
@@ -85,15 +81,11 @@ static void replace_safetynet_flags(char *cmd)
 			  "androidboot.secboot=enabled ");
 	replace_flag(cmd, "androidboot.verifiedbootstate=orange",
 			  "androidboot.verifiedbootstate=green ");
-#ifndef REMOVE_SAFETYNET_FLAGS
 	replace_flag(cmd, "androidboot.veritymode=logging",
 			  "androidboot.veritymode=enforcing");
 	replace_flag(cmd, "androidboot.veritymode=eio",
 			  "androidboot.veritymode=enforcing");
-#endif
-
 }
-#endif
 
 static int __init proc_cmdline_init(void)
 {
@@ -104,9 +96,6 @@ static int __init proc_cmdline_init(void)
 	 * pass SafetyNet CTS check.
 	 */
 	replace_safetynet_flags(new_command_line);
-#ifdef REMOVE_SAFETYNET_FLAGS
-	remove_safetynet_flags(new_command_line);
-#endif
 
 	proc_create("cmdline", 0, NULL, &cmdline_proc_fops);
 	return 0;
