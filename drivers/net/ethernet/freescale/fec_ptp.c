@@ -373,10 +373,16 @@ static int fec_ptp_adjtime(struct ptp_clock_info *ptp, s64 delta)
 	struct fec_enet_private *fep =
 	    container_of(ptp, struct fec_enet_private, ptp_caps);
 	unsigned long flags;
-
+	mutex_lock(&adapter->ptp_clk_mutex);
+	/* Check the ptp clock */
+	if (!adapter->ptp_clk_on) {
+		mutex_unlock(&adapter->ptp_clk_mutex);
+		return -EINVAL;
+	}
 	spin_lock_irqsave(&fep->tmreg_lock, flags);
 	timecounter_adjtime(&fep->tc, delta);
 	spin_unlock_irqrestore(&fep->tmreg_lock, flags);
+	mutex_unlock(&adapter->ptp_clk_mutex);
 
 	return 0;
 }
