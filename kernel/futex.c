@@ -1407,7 +1407,7 @@ static int lookup_pi_state(u32 __user *uaddr, u32 uval,
 
 static int lock_pi_update_atomic(u32 __user *uaddr, u32 uval, u32 newval)
 {
-	int err
+	int err;
 	u32 uninitialized_var(curval);
 
 	if (unlikely(should_fail_futex(true)))
@@ -1555,7 +1555,7 @@ static void mark_wake_futex(struct wake_q_head *wake_q, struct futex_q *q)
 	if (WARN(q->pi_state || q->rt_waiter, "refusing to wake PI futex\n"))
 		return;
 
-	get_task_struct(p)
+	get_task_struct(p);
 	__unqueue_futex(q);
 	/*
 	 * The waiting task can free the futex_q as soon as
@@ -1797,7 +1797,6 @@ retry_private:
 	double_lock_hb(hb1, hb2);
 	op_ret = futex_atomic_op_inuser(op, uaddr2);
 	if (unlikely(op_ret < 0)) {
-
 		double_unlock_hb(hb1, hb2);
 
 		if (!IS_ENABLED(CONFIG_MMU) ||
@@ -1819,6 +1818,7 @@ retry_private:
 		if (!(flags & FLAGS_SHARED)) {
 			cond_resched();
 			goto retry_private;
+		}
 
 		put_futex_key(&key2);
 		put_futex_key(&key1);
@@ -2981,6 +2981,8 @@ retry_private:
 		goto no_block;
 	}
 
+	rt_mutex_init_waiter(&rt_waiter);
+
 	/*
 	 * On PREEMPT_RT_FULL, when hb->lock becomes an rt_mutex, we must not
 	 * hold it while doing rt_mutex_start_proxy(), because then it will
@@ -3007,7 +3009,6 @@ retry_private:
 	if (ret) {
 		if (ret == 1)
 			ret = 0;
-
 		goto cleanup;
 	}
 
@@ -3015,6 +3016,7 @@ retry_private:
 		hrtimer_start_expires(&to->timer, HRTIMER_MODE_ABS);
 
 	ret = rt_mutex_wait_proxy_lock(&q.pi_state->pi_mutex, to, &rt_waiter);
+
 cleanup:
 	spin_lock(q.lock_ptr);
 	/*
@@ -3202,7 +3204,6 @@ pi_retry:
 	put_futex_key(&key);
 	cond_resched();
 	goto retry;
-
 
 pi_faulted:
 	put_futex_key(&key);
@@ -3551,6 +3552,7 @@ static int handle_futex_death(u32 __user *uaddr, struct task_struct *curr,
 			      bool pi, bool pending_op)
 {
 	u32 uval, uninitialized_var(nval), mval;
+	int err;
 
 	/* Futex address must be 32bit aligned */
 	if ((((unsigned long)uaddr) % sizeof(*uaddr)) != 0)
@@ -3647,8 +3649,8 @@ retry:
 	if (!pi && (uval & FUTEX_WAITERS))
 		futex_wake(uaddr, 1, 1, FUTEX_BITSET_MATCH_ANY);
 
- 	return 0;
- }
+	return 0;
+}
 
 /*
  * Fetch a robust-list pointer. Bit 0 signals PI futexes:
@@ -3719,6 +3721,7 @@ static void exit_robust_list(struct task_struct *curr)
 			if (handle_futex_death((void __user *)entry + futex_offset,
 						curr, pi, HANDLE_DEATH_LIST))
 				return;
+		}
 		if (rc)
 			return;
 		entry = next_entry;
@@ -3734,7 +3737,8 @@ static void exit_robust_list(struct task_struct *curr)
 
 	if (pending) {
 		handle_futex_death((void __user *)pending + futex_offset,
-				  curr, pip, HANDLE_DEATH_PENDING);
+				   curr, pip, HANDLE_DEATH_PENDING);
+	}
 }
 
 static void futex_cleanup(struct task_struct *tsk)
@@ -4037,7 +4041,7 @@ void compat_exit_robust_list(struct task_struct *curr)
 	if (pending) {
 		void __user *uaddr = futex_uaddr(pending, futex_offset);
 
-		handle_futex_death(uaddr, curr, pip, HANDLE_DEATH_PENDING)
+		handle_futex_death(uaddr, curr, pip, HANDLE_DEATH_PENDING);
 	}
 }
 
@@ -4173,4 +4177,5 @@ static int __init futex_init(void)
 
 	return 0;
 }
+
 core_initcall(futex_init);
