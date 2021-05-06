@@ -3747,14 +3747,14 @@ static int ext4_cross_rename(struct inode *old_dir, struct dentry *old_dentry,
 	 */
 	retval = -ENOENT;
 	if (!old.bh || le32_to_cpu(old.de->inode) != old.inode->i_ino)
-		goto end_rename;
+		goto release_bh;
 
 	new.bh = ext4_find_entry(new.dir, &new.dentry->d_name,
 				 &new.de, &new.inlined);
 	if (IS_ERR(new.bh)) {
 		retval = PTR_ERR(new.bh);
 		new.bh = NULL;
-		goto end_rename;
+		goto release_bh;
 	}
 
 	/* RENAME_EXCHANGE case: old *and* new must both exist */
@@ -3766,8 +3766,7 @@ static int ext4_cross_rename(struct inode *old_dir, struct dentry *old_dentry,
 		 2 * EXT4_INDEX_EXTRA_TRANS_BLOCKS + 2));
 	if (IS_ERR(handle)) {
 		retval = PTR_ERR(handle);
-		handle = NULL;
-		goto end_rename;
+		goto release_bh;
 	}
 
 	if (IS_DIRSYNC(old.dir) || IS_DIRSYNC(new.dir))
