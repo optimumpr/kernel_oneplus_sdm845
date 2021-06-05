@@ -8259,6 +8259,7 @@ bnx2_init_board(struct pci_dev *pdev, struct net_device *dev)
 
 		dev_err(&pdev->dev,
 			"5706 A1 can only be used in a PCIX bus, aborting\n");
+		rc = -EPERM;
 		goto err_out_unmap;
 	}
 
