@@ -543,6 +543,8 @@ static const struct of_device_id sti_sas_dev_match[] = {
 	{},
 };
 
+MODULE_DEVICE_TABLE(of, sti_sas_dev_match);
+
 static int sti_sas_driver_probe(struct platform_device *pdev)
 {
 	struct device_node *pnode = pdev->dev.of_node;
