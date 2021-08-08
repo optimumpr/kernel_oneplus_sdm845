@@ -54,7 +54,7 @@ int llc_sap_action_send_ui(struct llc_sap *sap, struct sk_buff *skb)
 	struct llc_sap_state_ev *ev = llc_sap_ev(skb);
 	int rc;
 
-	llc_pdu_header_init(skb, LLC_PDU_TYPE_U, ev->saddr.lsap,
+	llc_pdu_header_init(skb, LLC_PDU_TYPE_U_XID, ev->saddr.lsap,
 			    ev->daddr.lsap, LLC_PDU_CMD);
 	llc_pdu_init_as_ui_cmd(skb);
 	rc = llc_mac_hdr_init(skb, ev->saddr.mac, ev->daddr.mac);
